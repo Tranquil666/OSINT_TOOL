@@ -2,13 +2,16 @@
 let cachedNews = [];
 let activeSource = 'all';
 
+const NEWS_CACHE_KEY = 'warwatch_news_cache';
+const NEWS_CACHE_TTL = 10 * 60 * 1000; // 10 minutes
+
 const WAR_KEYWORDS = [
     'war','conflict','attack','bomb','missile','military','troops','offensive',
     'ceasefire','invasion','battle','fighting','airstrike','killed','wounded',
     'explosion','rebel','forces','ukraine','russia','gaza','israel','hamas',
     'sudan','myanmar','yemen','houthi','nato','iran','hezbollah','isis','isil',
     'terrorism','coup','refugee','displacement','siege','artillery','drone',
-    'frontline','insurgency','militia','nuclear','sanctions','casualt','dead'
+    'frontline','insurgency','militia','nuclear','sanctions','casualty','casualties','dead'
 ];
 
 async function fetchRSS(key) {
@@ -54,9 +57,18 @@ function parseRSS(xml, key, feed) {
 }
 
 async function fetchAllNews() {
+    // Immediately hydrate the UI from cache while fresh data is fetched in background
+    const preCached = loadNewsCache();
+    if (preCached && preCached.length) {
+        cachedNews = preCached;
+        renderNews();
+        refreshTicker();
+    } else {
+        setNewsLoading(true);
+    }
+
     const btn = document.getElementById('refresh-btn');
     if (btn) btn.classList.add('spinning');
-    setNewsLoading(true);
 
     const results = await Promise.allSettled(
         Object.keys(CONFIG.RSS_FEEDS).map(k => fetchRSS(k))
@@ -66,7 +78,13 @@ async function fetchAllNews() {
     results.forEach(r => { if (r.status === 'fulfilled') items.push(...r.value); });
     items.sort((a, b) => b.ts - a.ts);
 
-    cachedNews = items.length > 0 ? items : getFallbackNews();
+    if (items.length > 0) {
+        cachedNews = items;
+        saveNewsCache(items);
+    } else if (!cachedNews.length) {
+        cachedNews = getFallbackNews();
+    }
+
     renderNews();
     refreshTicker();
 
@@ -78,11 +96,13 @@ async function fetchAllNews() {
 }
 
 function setNewsLoading(loading) {
+    const list = document.getElementById('news-list');
     if (loading) {
-        document.getElementById('news-list').innerHTML =
+        list.innerHTML =
             `<div class="spinner-wrap"><i class="fas fa-sync-alt fa-spin"></i>
              <p>Fetching intelligence feeds…</p></div>`;
     }
+    // loading=false is handled by the subsequent renderNews() call
 }
 
 function renderNews() {
@@ -95,7 +115,7 @@ function renderNews() {
     }
 
     list.innerHTML = items.map(n => `
-        <div class="news-card" onclick="window.open('${safeAttr(n.link)}','_blank','noopener,noreferrer')">
+        <div class="news-card" role="listitem" data-href="${safeAttr(n.link)}">
             <span class="ns-tag" style="color:${n.sourceColor}">${esc(n.sourceName)}</span>
             <div class="news-title">${esc(n.title)}</div>
             ${n.desc ? `<div class="news-desc">${esc(n.desc.substring(0,130))}…</div>` : ''}
@@ -160,4 +180,38 @@ function getFallbackNews() {
         { id:'f10',title:'Haiti: Armed gangs seize new territory in Port-au-Prince',       link:'https://www.reuters.com/world/americas/',          desc:'MSS Kenya-led force struggling to contain gang expansion.',                  source:'reuters',   sourceName:'Reuters',    sourceColor:'#ff7700', ts: now - 36000000 },
         { id:'f11',title:'[Offline mode] Live news loads automatically when connected',    link:'#',                                               desc:'Real-time feeds from BBC, Reuters, Al Jazeera activate with internet access.',source:'bbc',       sourceName:'System',     sourceColor:'#444',    ts: now - 39600000 }
     ];
+}
+
+// ─── LocalStorage cache helpers ───────────────────────────────────────────────
+function saveNewsCache(items) {
+    try {
+        localStorage.setItem(NEWS_CACHE_KEY, JSON.stringify({ ts: Date.now(), items }));
+    } catch (_) { /* storage quota exceeded or unavailable */ }
+}
+
+function loadNewsCache() {
+    try {
+        const raw = localStorage.getItem(NEWS_CACHE_KEY);
+        if (!raw) return null;
+        const { ts, items } = JSON.parse(raw);
+        if (Date.now() - ts > NEWS_CACHE_TTL) return null;
+        return Array.isArray(items) ? items : null;
+    } catch (_) { return null; }
+}
+
+// ─── Event delegation for news card clicks ────────────────────────────────────
+let _newsListenersSetUp = false;
+function setupNewsListeners() {
+    if (_newsListenersSetUp) return;
+    _newsListenersSetUp = true;
+    document.getElementById('news-list').addEventListener('click', e => {
+        const card = e.target.closest('.news-card');
+        if (!card) return;
+        // Let the "Read →" anchor handle its own navigation
+        if (e.target.closest('a')) return;
+        const href = card.dataset.href;
+        if (href && href !== '#') {
+            window.open(href, '_blank', 'noopener,noreferrer');
+        }
+    });
 }
