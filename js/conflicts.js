@@ -25,12 +25,12 @@ const CONFLICTS_DATA = [
         intensity: 'critical',
         type: 'Armed Conflict',
         started: '2023-10-07',
-        status: 'Active',
-        casualties: '50,000+',
-        displaced: '2M+',
-        description: 'Ongoing military campaign in the Gaza Strip following Hamas-led attacks on Israel. Extensive urban warfare, major humanitarian crisis, regional escalation risk.',
-        parties: ['Israel (IDF)', 'Hamas', 'Palestinian Islamic Jihad'],
-        tags: ['middle-east', 'humanitarian', 'urban-warfare']
+        status: 'Ceasefire / Active',
+        casualties: '52,000+',
+        displaced: '1.9M+',
+        description: 'Launched after Hamas-led attacks killed ~1,200 Israelis and took ~250 hostages on Oct 7 2023. IDF campaign destroyed large parts of Gaza City, Khan Younis and Rafah. Phase 1 ceasefire agreed Jan 2025 with hostage-for-prisoner exchanges. Humanitarian crisis remains catastrophic: famine-level conditions, hospitals overwhelmed, over 90% of population displaced at peak. Ceasefire fragile; IDF resumed operations in March 2025.',
+        parties: ['Israel (IDF)', 'Hamas', 'Palestinian Islamic Jihad', 'UNRWA / Aid Agencies'],
+        tags: ['middle-east', 'humanitarian', 'urban-warfare', 'ceasefire', 'hostage-crisis']
     },
     {
         id: 'sudan',
@@ -130,19 +130,19 @@ const CONFLICTS_DATA = [
     },
     {
         id: 'yemen',
-        name: 'Yemen Civil War',
+        name: 'Yemen Civil War & Red Sea Crisis',
         region: 'middle-east',
         country: 'Yemen',
         lat: 15.5, lng: 47.5,
         intensity: 'high',
-        type: 'Civil War',
+        type: 'Civil War / Maritime Crisis',
         started: '2014-09-21',
         status: 'Active',
         casualties: '377,000+',
         displaced: '4.5M+',
-        description: 'Multi-sided civil war. Houthis control Sanaa and Red Sea coast; Saudi-led coalition supports the government. Houthi attacks on Red Sea shipping ongoing.',
-        parties: ['Houthis (Ansar Allah)', 'Saudi Coalition', 'Yemeni Government', 'STC'],
-        tags: ['civil-war', 'middle-east', 'shipping', 'iran-backed']
+        description: 'Multi-sided civil war; Houthis (Ansar Allah) control Sanaa and the Red Sea coast. Since late 2023, Houthis have launched hundreds of drone and missile attacks on commercial and military vessels in the Red Sea and Gulf of Aden, disrupting ~12% of global trade. US-UK "Operation Poseidon Archer" conducted hundreds of airstrikes on Houthi infrastructure. Houthis declared a maritime ceasefire linked to Gaza but resumed attacks. Saudi-Houthi peace talks ongoing; ground war largely static.',
+        parties: ['Houthis (Ansar Allah)', 'Saudi Coalition', 'Yemeni Government (ROYG)', 'STC', 'US / UK (airstrikes)'],
+        tags: ['civil-war', 'middle-east', 'shipping', 'iran-backed', 'red-sea', 'maritime']
     },
     {
         id: 'afghanistan',
@@ -178,19 +178,19 @@ const CONFLICTS_DATA = [
     },
     {
         id: 'syria',
-        name: 'Syria Conflict',
+        name: 'Syria Post-War Transition',
         region: 'middle-east',
         country: 'Syria',
         lat: 34.8, lng: 38.8,
         intensity: 'medium',
-        type: 'Civil War',
+        type: 'Post-Civil War / Insurgency',
         started: '2011-03-15',
         status: 'Transitional',
         casualties: '500,000+',
         displaced: '13M+',
-        description: 'Assad regime fell in December 2024. HTS leads transitional government. SDF controls northeast; Turkish-backed forces in the north; residual ISIS activity.',
-        parties: ['HTS / New Government', 'SDF (AANES)', 'Turkish Forces', 'ISIS'],
-        tags: ['civil-war', 'middle-east', 'post-conflict']
+        description: 'Assad regime fell in December 2024 after HTS-led offensive swept from Idlib to Damascus in 12 days. HTS (Ahmad al-Sharaa / Jolani) leads the new transitional government. SDF controls the northeast under US protection; Turkish-backed SNAF operates in the north and has clashed with SDF. ISIS exploiting the power vacuum with stepped-up attacks in Deir ez-Zor and Homs desert. Reconstruction needs estimated at $400B+; sanctions relief remains contested.',
+        parties: ['HTS / New Government (SIG)', 'SDF (AANES)', 'Turkish Forces / SNAF', 'ISIS', 'US Forces'],
+        tags: ['civil-war', 'middle-east', 'post-conflict', 'reconstruction', 'isis']
     },
     {
         id: 'haiti',
@@ -294,15 +294,15 @@ const CONFLICTS_DATA = [
         region: 'middle-east',
         country: 'Turkey / Iraq / Syria',
         lat: 37.5, lng: 43.0,
-        intensity: 'medium',
+        intensity: 'low',
         type: 'Insurgency',
         started: '1984-08-15',
-        status: 'Active',
+        status: 'Ceasefire Declared',
         casualties: '40,000+',
         displaced: 'Unknown',
-        description: 'Turkish military operations in northern Iraq (Operation Claw series) and Syria targeting PKK/YPG. PKK recently announced ceasefire—outcome uncertain.',
+        description: 'PKK leader Abdullah Öcalan called a historic ceasefire and ordered PKK disarmament in February 2025 after talks with Turkish state. PKK formally declared cessation of armed struggle in May 2025. Turkish military operations in northern Iraq (Claw series) ongoing; outcome of disarmament process uncertain. SDF in Syria navigating its future status under the new Syrian government and Turkish pressure.',
         parties: ['Turkey (TSK)', 'PKK', 'YPG / SDF'],
-        tags: ['insurgency', 'middle-east', 'nato']
+        tags: ['insurgency', 'middle-east', 'nato', 'ceasefire', 'disarmament']
     },
     {
         id: 'car',
@@ -326,15 +326,15 @@ const CONFLICTS_DATA = [
         region: 'middle-east',
         country: 'Lebanon',
         lat: 33.8, lng: 35.8,
-        intensity: 'medium',
+        intensity: 'low',
         type: 'Armed Conflict',
         started: '2023-10-08',
         status: 'Ceasefire',
         casualties: '4,000+',
         displaced: '1.2M+',
-        description: 'Cross-border conflict between Israel and Hezbollah. Ceasefire agreed November 2024 but fragile. Israeli forces partially withdrew from Lebanese territory.',
-        parties: ['Israel (IDF)', 'Hezbollah'],
-        tags: ['middle-east', 'ceasefire', 'iran-backed']
+        description: 'Cross-border conflict between Israel and Hezbollah escalated into full-scale war in September 2024 after years of skirmishes. Hezbollah senior leadership including Secretary-General Hassan Nasrallah killed in Israeli airstrikes. Ceasefire brokered by US and France in November 2024; IDF conducted a 60-day withdrawal. Hezbollah significantly degraded but retaining arms. Lebanese army deploying to south Lebanon under UNIFIL mandate. Israeli violations reported; reconstruction estimated at $8B+.',
+        parties: ['Israel (IDF)', 'Hezbollah', 'Lebanese Army (LAF)', 'UNIFIL'],
+        tags: ['middle-east', 'ceasefire', 'iran-backed', 'reconstruction']
     },
     {
         id: 'taiwan-strait',
@@ -380,9 +380,9 @@ const CONFLICTS_DATA = [
         status: 'Active',
         casualties: 'Ongoing',
         displaced: 'N/A',
-        description: 'Iran and Israel exchanged direct missile and drone strikes in 2024. IRGC proxy network (Hezbollah, Houthis, PMF) active across the region.',
-        parties: ['Iran (IRGC)', 'Israel', 'USA', 'Proxies'],
-        tags: ['tension', 'middle-east', 'nuclear-risk', 'proxy']
+        description: 'Israel and Iran exchanged direct missile and drone strikes for the first time in April and October 2024. Israeli strikes destroyed S-300 air defence systems and targeted nuclear-adjacent sites. Iran\'s proxy network (Hezbollah, Houthis, PMF) has been significantly degraded. Iran accelerating uranium enrichment to 60%+; IAEA access limited. US-Iran nuclear deal negotiations stalled. Risk of Israeli preventive strike on Iranian nuclear facilities remains elevated in 2025.',
+        parties: ['Iran (IRGC)', 'Israel', 'USA', 'Hezbollah', 'Houthis', 'PMF (Iraq)'],
+        tags: ['tension', 'middle-east', 'nuclear-risk', 'proxy', 'iran-backed']
     },
     {
         id: 'libya',
@@ -412,9 +412,41 @@ const CONFLICTS_DATA = [
         status: 'Active',
         casualties: 'Ongoing',
         displaced: 'Unknown',
-        description: 'ISIS remnants conduct attacks in desert areas of Iraq and Syria. Syrian transition creates power vacuum that ISIS is exploiting. US-led coalition continues operations.',
-        parties: ['ISIS', 'Iraqi Forces (PMF)', 'SDF', 'US-led Coalition'],
-        tags: ['insurgency', 'terrorism', 'middle-east']
+        description: 'ISIS exploiting the power vacuum created by Assad\'s fall and reduced US presence to resurge in Syria\'s central desert (Badia region) and Iraq\'s Anbar, Kirkuk and Diyala provinces. Dozens of attacks per month targeting Syrian military convoys, Kurdish forces and civilians. US-led coalition conducting strikes but with reduced ground support. PMF (Iran-backed) units under pressure after leadership assassinations in 2024. New Syrian government struggling to establish security in former ISIS heartland.',
+        parties: ['ISIS', 'Iraqi Forces (ISF / PMF)', 'SDF', 'US-led Coalition', 'Syrian Transitional Forces'],
+        tags: ['insurgency', 'terrorism', 'middle-east', 'syria', 'iraq']
+    },
+    {
+        id: 'west-bank',
+        name: 'West Bank Operations',
+        region: 'middle-east',
+        country: 'West Bank / Palestine',
+        lat: 32.0, lng: 35.25,
+        intensity: 'high',
+        type: 'Military Operations',
+        started: '2023-10-07',
+        status: 'Active',
+        casualties: '900+',
+        displaced: '40,000+',
+        description: 'Sustained IDF operations in the West Bank since October 2023. Operation Iron Wall (launched Jan 2025) deployed armoured units, drones and bulldozers into Jenin, Tulkarm and Nur Shams refugee camps. Largest West Bank military operation since the Second Intifada. Palestinian Authority (PA) security forces sidelined. Settler violence surged sharply—hundreds of attacks on Palestinian communities. Demolitions of homes and infrastructure widespread. UN warns of risk of permanent displacement.',
+        parties: ['Israel (IDF)', 'Palestinian Resistance Factions', 'Palestinian Authority (PA)', 'Israeli Settlers'],
+        tags: ['middle-east', 'humanitarian', 'occupation', 'urban-warfare', 'settler-violence']
+    },
+    {
+        id: 'dprk-tensions',
+        name: 'North Korea–Regional Tensions',
+        region: 'asia',
+        country: 'North Korea / Korean Peninsula',
+        lat: 39.5, lng: 127.5,
+        intensity: 'tension',
+        type: 'Military Tension',
+        started: '2022-01-01',
+        status: 'Heightened',
+        casualties: 'None confirmed',
+        displaced: 'None',
+        description: 'DPRK deployed an estimated 10,000–15,000 troops to support Russia in Ukraine (confirmed by South Korea, USA, NATO) — marking North Korea\'s direct involvement in a European conflict. Pyongyang test-fired multiple ICBMs and a hypersonic missile in 2024–2025. Kim Jong-un oversaw nuclear warhead miniaturisation demonstrations. South Korea suspended inter-Korean agreements; ROK–US–Japan trilateral exercises intensified. Border tensions at DMZ remain elevated.',
+        parties: ['North Korea (KPA)', 'South Korea (ROK)', 'USA', 'Russia (DPRK support)'],
+        tags: ['tension', 'asia', 'nuclear-risk', 'icbm', 'dprk']
     }
 ];
 
