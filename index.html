@@ -38,8 +38,9 @@
         </div>
 
         <div class="search-wrap">
-            <i class="fas fa-search"></i>
-            <input id="search-input" type="text" placeholder="Search conflicts, countries, factions…" autocomplete="off"/>
+            <i class="fas fa-search" aria-hidden="true"></i>
+            <input id="search-input" type="text" placeholder="Search conflicts, countries, factions…"
+                   autocomplete="off" aria-label="Search conflicts"/>
         </div>
 
         <div class="hdr-right">
@@ -62,11 +63,11 @@
     <div id="content">
 
         <!-- Left panel: conflict list -->
-        <aside id="left-panel" class="panel">
+        <aside id="left-panel" class="panel" aria-label="Active conflicts list">
             <div class="panel-hdr">
-                <h2><i class="fas fa-fire-alt"></i>Active Conflicts</h2>
+                <h2><i class="fas fa-fire-alt" aria-hidden="true"></i>Active Conflicts <span id="conflict-count" class="conflict-count-badge">–</span></h2>
                 <div class="filter-row">
-                    <select id="region-filter">
+                    <select id="region-filter" aria-label="Filter by region">
                         <option value="all">All Regions</option>
                         <option value="europe">Europe</option>
                         <option value="middle-east">Middle East</option>
@@ -74,7 +75,7 @@
                         <option value="asia">Asia</option>
                         <option value="americas">Americas</option>
                     </select>
-                    <select id="intensity-filter">
+                    <select id="intensity-filter" aria-label="Filter by intensity">
                         <option value="all">All Intensities</option>
                         <option value="critical">⬤ Critical</option>
                         <option value="high">⬤ High</option>
@@ -83,8 +84,11 @@
                         <option value="tension">⬤ Tension</option>
                     </select>
                 </div>
+                <div class="filter-row-actions">
+                    <button id="export-btn" title="Export filtered conflicts as CSV"><i class="fas fa-download" aria-hidden="true"></i> Export CSV</button>
+                </div>
             </div>
-            <div id="conflict-list"></div>
+            <div id="conflict-list" role="list"></div>
         </aside>
 
         <!-- Map -->
@@ -109,21 +113,21 @@
         </div>
 
         <!-- Right panel: live news -->
-        <aside id="right-panel" class="panel">
+        <aside id="right-panel" class="panel" aria-label="Live intelligence news feed">
             <div class="panel-hdr">
-                <h2><i class="fas fa-newspaper"></i>Live Intelligence</h2>
+                <h2><i class="fas fa-newspaper" aria-hidden="true"></i>Live Intelligence</h2>
                 <div class="filter-row-news">
-                    <select id="source-filter">
+                    <select id="source-filter" aria-label="Filter by news source">
                         <option value="all">All Sources</option>
                         <option value="bbc">BBC News</option>
                         <option value="reuters">Reuters</option>
                         <option value="aljazeera">Al Jazeera</option>
                     </select>
-                    <button id="refresh-btn" title="Refresh news feed"><i class="fas fa-sync-alt"></i></button>
+                    <button id="refresh-btn" title="Refresh news feed" aria-label="Refresh news feed"><i class="fas fa-sync-alt" aria-hidden="true"></i></button>
                 </div>
             </div>
-            <div id="news-ticker"><span id="ticker-inner">Loading live intelligence feed…</span></div>
-            <div id="news-list"></div>
+            <div id="news-ticker" aria-hidden="true"><span id="ticker-inner">Loading live intelligence feed…</span></div>
+            <div id="news-list" role="list"></div>
         </aside>
 
     </div><!-- /content -->

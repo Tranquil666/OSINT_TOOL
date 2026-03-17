@@ -167,6 +167,25 @@ html, body {
 
 .filter-row-news { display: flex; align-items: center; gap: .45rem; margin-top: .5rem; }
 .filter-row-news select { flex: 1; }
+
+/* Conflict count badge in panel heading */
+.conflict-count-badge {
+    font-family: var(--f-mono); font-size: .63rem;
+    background: var(--border); color: var(--text2);
+    padding: 1px 7px; border-radius: 10px;
+    margin-left: .3rem; vertical-align: middle;
+}
+
+/* Export CSV button row */
+.filter-row-actions { display: flex; margin-top: .35rem; }
+#export-btn {
+    width: 100%; background: none; border: 1px solid var(--border);
+    color: var(--text2); border-radius: 3px; padding: .24rem .6rem;
+    font-size: .72rem; font-family: var(--f-mono); letter-spacing: .07em;
+    cursor: pointer; transition: all .2s; text-align: left;
+}
+#export-btn:hover { border-color: var(--green); color: var(--green); }
+#export-btn i { margin-right: .3rem; }
 #refresh-btn {
     background: var(--card); border: 1px solid var(--border);
     color: var(--cyan); border-radius: 3px; padding: .28rem .55rem;

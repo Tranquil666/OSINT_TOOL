@@ -118,3 +118,9 @@ function highlightCard(id) {
     const card = document.querySelector(`[data-id="${id}"]`);
     if (card) { card.classList.add('is-active'); card.scrollIntoView({ behavior: 'smooth', block: 'nearest' }); }
 }
+
+function fitMapToMarkers(conflicts) {
+    if (!conflicts || !conflicts.length) return;
+    const bounds = L.latLngBounds(conflicts.map(c => [c.lat, c.lng]));
+    map.fitBounds(bounds, { padding: [50, 50], maxZoom: 5 });
+}

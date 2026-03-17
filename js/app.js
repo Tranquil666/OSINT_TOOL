@@ -1,12 +1,18 @@
 // ─── App bootstrap & glue ────────────────────────────────────────────────────
 let filters = { region: 'all', intensity: 'all', search: '' };
 
+function debounce(fn, delay) {
+    let timer;
+    return function(...args) { clearTimeout(timer); timer = setTimeout(() => fn.apply(this, args), delay); };
+}
+
 document.addEventListener('DOMContentLoaded', async () => {
     initMap();
 
     const sorted = sortByIntensity(CONFLICTS_DATA);
     renderConflictList(sorted);
     renderMarkers(sorted);
+    fitMapToMarkers(sorted);
     updateStats();
 
     setupListeners();
@@ -26,12 +32,14 @@ document.addEventListener('DOMContentLoaded', async () => {
 // ─── Conflict list rendering ─────────────────────────────────────────────────
 function renderConflictList(list) {
     const el = document.getElementById('conflict-list');
+    const countEl = document.getElementById('conflict-count');
+    if (countEl) countEl.textContent = list.length;
     if (!list.length) {
         el.innerHTML = `<div class="no-data"><i class="fas fa-search"></i><p>No conflicts match your filters.</p></div>`;
         return;
     }
     el.innerHTML = list.map(c => `
-        <div class="conflict-card int-${c.intensity}" data-id="${c.id}" onclick="handleCardClick('${c.id}')">
+        <div class="conflict-card int-${c.intensity}" role="listitem" data-id="${c.id}" onclick="handleCardClick('${c.id}')">
             <div class="cc-top">
                 <span class="cc-name">${c.name}</span>
                 <span class="cc-badge badge-${c.intensity}">${c.intensity.toUpperCase()}</span>
@@ -126,9 +134,39 @@ function tickClock() {
     if (el) el.textContent = new Date().toUTCString().replace(' GMT', ' UTC');
 }
 
+// ─── Export ───────────────────────────────────────────────────────────────────
+function exportConflictsCSV() {
+    const filtered = filterConflicts(filters.region, filters.intensity, filters.search);
+    const sorted   = sortByIntensity(filtered);
+    const headers  = ['Name','Region','Country','Intensity','Type','Status','Casualties','Displaced','Started','Parties'];
+    const rows = sorted.map(c => [
+        `"${c.name.replace(/"/g, '""')}"`,
+        c.region, c.country, c.intensity, c.type, c.status,
+        c.casualties, c.displaced, c.started,
+        `"${c.parties.join('; ').replace(/"/g, '""')}"`
+    ]);
+    const csv = [headers.join(','), ...rows.map(r => r.join(','))].join('\n');
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    const url  = URL.createObjectURL(blob);
+    const a    = document.createElement('a');
+    a.href = url;
+    a.download = `warwatch-conflicts-${new Date().toISOString().slice(0, 10)}.csv`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+}
+
 // ─── Event listeners ─────────────────────────────────────────────────────────
 function setupListeners() {
     document.getElementById('close-detail').addEventListener('click', closeDetail);
+
+    // Close detail panel with Escape key (only when panel is visible)
+    document.addEventListener('keydown', e => {
+        if (e.key === 'Escape' && document.getElementById('detail-panel').classList.contains('visible')) {
+            closeDetail();
+        }
+    });
 
     document.getElementById('region-filter').addEventListener('change', e => {
         filters.region = e.target.value; applyFilters();
@@ -136,12 +174,17 @@ function setupListeners() {
     document.getElementById('intensity-filter').addEventListener('change', e => {
         filters.intensity = e.target.value; applyFilters();
     });
-    document.getElementById('search-input').addEventListener('input', e => {
+    document.getElementById('search-input').addEventListener('input', debounce(e => {
         filters.search = e.target.value; applyFilters();
-    });
+    }, 300));
 
     document.getElementById('source-filter').addEventListener('change', e => {
         activeSource = e.target.value; renderNews();
     });
     document.getElementById('refresh-btn').addEventListener('click', fetchAllNews);
+
+    const exportBtn = document.getElementById('export-btn');
+    if (exportBtn) exportBtn.addEventListener('click', exportConflictsCSV);
+
+    setupNewsListeners();
 }
