@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>WarWatch OSINT — Live Conflict Intelligence</title>
+    <meta name="description" content="Open-source war OSINT tool: live conflict map, real-time news, and intelligence data."/>
+
+    <!-- Leaflet -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.css"/>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.Default.css"/>
+    <!-- Icons & Fonts -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"/>
+    <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=Share+Tech+Mono&family=Roboto:wght@300;400;500&display=swap" rel="stylesheet"/>
+    <!-- App -->
+    <link rel="stylesheet" href="css/style.css"/>
+</head>
+<body>
+
+<!-- ─── Loading screen ──────────────────────────────────────────────────────── -->
+<div id="loading-screen">
+    <div class="ld-icon"><i class="fas fa-crosshairs"></i></div>
+    <div class="ld-title">WAR<span style="color:#fff">WATCH</span></div>
+    <div class="ld-bar"><div class="ld-progress"></div></div>
+    <div class="ld-text">Initialising conflict intelligence systems…</div>
+</div>
+
+<!-- ─── App shell ───────────────────────────────────────────────────────────── -->
+<div id="app">
+
+    <!-- Header -->
+    <header id="header">
+        <div class="logo">
+            <i class="fas fa-crosshairs logo-icon"></i>
+            <span class="logo-word">WAR<span class="g">WATCH</span></span>
+            <span class="logo-pill">OSINT</span>
+        </div>
+
+        <div class="search-wrap">
+            <i class="fas fa-search"></i>
+            <input id="search-input" type="text" placeholder="Search conflicts, countries, factions…" autocomplete="off"/>
+        </div>
+
+        <div class="hdr-right">
+            <div class="hdr-stat">
+                <span class="hdr-stat-label">CONFLICTS</span>
+                <span class="hdr-stat-val g" id="stat-active">–</span>
+            </div>
+            <div class="hdr-stat">
+                <span class="hdr-stat-label">EVENTS/MO</span>
+                <span class="hdr-stat-val" id="stat-events">–</span>
+            </div>
+            <div class="live-badge">
+                <span class="pulse"></span>LIVE
+            </div>
+            <div class="upd-time">Updated: <span id="update-time">–</span></div>
+        </div>
+    </header>
+
+    <!-- Content row -->
+    <div id="content">
+
+        <!-- Left panel: conflict list -->
+        <aside id="left-panel" class="panel">
+            <div class="panel-hdr">
+                <h2><i class="fas fa-fire-alt"></i>Active Conflicts</h2>
+                <div class="filter-row">
+                    <select id="region-filter">
+                        <option value="all">All Regions</option>
+                        <option value="europe">Europe</option>
+                        <option value="middle-east">Middle East</option>
+                        <option value="africa">Africa</option>
+                        <option value="asia">Asia</option>
+                        <option value="americas">Americas</option>
+                    </select>
+                    <select id="intensity-filter">
+                        <option value="all">All Intensities</option>
+                        <option value="critical">⬤ Critical</option>
+                        <option value="high">⬤ High</option>
+                        <option value="medium">⬤ Medium</option>
+                        <option value="low">⬤ Low</option>
+                        <option value="tension">⬤ Tension</option>
+                    </select>
+                </div>
+            </div>
+            <div id="conflict-list"></div>
+        </aside>
+
+        <!-- Map -->
+        <div id="map-wrap">
+            <div id="map"></div>
+
+            <!-- Conflict detail overlay -->
+            <div id="detail-panel">
+                <button id="close-detail" title="Close"><i class="fas fa-times"></i></button>
+                <div id="detail-body"></div>
+            </div>
+
+            <!-- Legend -->
+            <div id="map-legend">
+                <div class="leg-title">INTENSITY</div>
+                <div class="leg-row"><span class="dot dot-critical"></span>Critical</div>
+                <div class="leg-row"><span class="dot dot-high"></span>High</div>
+                <div class="leg-row"><span class="dot dot-medium"></span>Medium</div>
+                <div class="leg-row"><span class="dot dot-low"></span>Low</div>
+                <div class="leg-row"><span class="dot dot-tension"></span>Tension</div>
+            </div>
+        </div>
+
+        <!-- Right panel: live news -->
+        <aside id="right-panel" class="panel">
+            <div class="panel-hdr">
+                <h2><i class="fas fa-newspaper"></i>Live Intelligence</h2>
+                <div class="filter-row-news">
+                    <select id="source-filter">
+                        <option value="all">All Sources</option>
+                        <option value="bbc">BBC News</option>
+                        <option value="reuters">Reuters</option>
+                        <option value="aljazeera">Al Jazeera</option>
+                    </select>
+                    <button id="refresh-btn" title="Refresh news feed"><i class="fas fa-sync-alt"></i></button>
+                </div>
+            </div>
+            <div id="news-ticker"><span id="ticker-inner">Loading live intelligence feed…</span></div>
+            <div id="news-list"></div>
+        </aside>
+
+    </div><!-- /content -->
+
+    <!-- Bottom stats bar -->
+    <footer id="stats-bar">
+        <div class="sb-item"><i class="fas fa-globe-europe"></i>Europe <span class="sb-count" id="stat-europe">–</span></div>
+        <div class="sb-div"></div>
+        <div class="sb-item"><i class="fas fa-globe-africa"></i>Africa <span class="sb-count" id="stat-africa">–</span></div>
+        <div class="sb-div"></div>
+        <div class="sb-item"><i class="fas fa-globe-asia"></i>Middle&nbsp;East <span class="sb-count" id="stat-mideast">–</span></div>
+        <div class="sb-div"></div>
+        <div class="sb-item"><i class="fas fa-globe-asia"></i>Asia <span class="sb-count" id="stat-asia">–</span></div>
+        <div class="sb-div"></div>
+        <div class="sb-item"><i class="fas fa-globe-americas"></i>Americas <span class="sb-count" id="stat-americas">–</span></div>
+        <div class="sb-div"></div>
+        <div class="sb-center sb-item"><i class="fas fa-database"></i>Data: ACLED · Wikipedia · UCDP · BBC · Reuters · Al&nbsp;Jazeera · GDELT</div>
+        <div class="sb-div"></div>
+        <div class="sb-clock"><i class="fas fa-clock"></i> <span id="clock"></span></div>
+    </footer>
+
+</div><!-- /app -->
+
+<!-- Leaflet -->
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="https://unpkg.com/leaflet.markercluster@1.5.3/dist/leaflet.markercluster.js"></script>
+<!-- App scripts (order matters) -->
+<script src="js/config.js"></script>
+<script src="js/conflicts.js"></script>
+<script src="js/map.js"></script>
+<script src="js/news.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>
