@@ -400,6 +400,106 @@ html, body {
 
 @keyframes spin { from{transform:rotate(0deg)} to{transform:rotate(360deg)} }
 
+/* ─── Panel tabs ───────────────────────────────────────────────────────────── */
+.panel-tabs {
+    display: flex; gap: 3px;
+    background: var(--bg0); border-radius: 4px;
+    padding: 3px; margin-bottom: .55rem;
+}
+.panel-tab {
+    flex: 1; background: none; border: 1px solid var(--border);
+    color: var(--text2); border-radius: 3px;
+    padding: .3rem .4rem; font-size: .68rem;
+    font-family: var(--f-mono); letter-spacing: .1em;
+    cursor: pointer; transition: all .18s;
+    display: flex; align-items: center; justify-content: center; gap: .35rem;
+}
+.panel-tab:hover { border-color: var(--green); color: var(--text0); }
+.panel-tab.tab-active {
+    background: var(--green); color: var(--bg0);
+    border-color: var(--green); font-weight: 700;
+}
+
+/* Section label (replaces h2 inside tabs) */
+.panel-section-label {
+    font-family: var(--f-mono); font-size: .7rem; letter-spacing: .18em;
+    color: var(--green); text-transform: uppercase;
+    margin-top: .4rem; display: flex; align-items: center; gap: .35rem;
+}
+.panel-section-label i { font-size: .75rem; }
+
+/* ─── Maritime cards ───────────────────────────────────────────────────────── */
+.maritime-card {
+    background: var(--card); border: 1px solid var(--border);
+    border-left: 3px solid var(--text2); border-radius: 4px;
+    padding: .7rem .75rem; margin-bottom: .45rem;
+    cursor: pointer; transition: all .18s; position: relative; overflow: hidden;
+}
+.maritime-card:hover, .maritime-card.is-active {
+    border-color: var(--cyan) !important;
+    background: var(--hover); transform: translateX(3px);
+    box-shadow: 0 2px 14px rgba(0,207,255,.1);
+}
+.ml-critical { border-left-color: var(--critical) !important; }
+.ml-high     { border-left-color: var(--high)     !important; }
+.ml-medium   { border-left-color: var(--medium)   !important; }
+.ml-watch    { border-left-color: var(--tension)  !important; }
+.ml-normal   { border-left-color: var(--green)    !important; }
+
+.badge-ml-critical { background: var(--critical); color: #fff; }
+.badge-ml-high     { background: var(--high);     color: #fff; }
+.badge-ml-medium   { background: var(--medium);   color: var(--bg0); }
+.badge-ml-watch    { background: var(--tension);  color: #fff; }
+.badge-ml-normal   { background: var(--green);    color: var(--bg0); }
+
+/* ─── Shipping lane toggle button ──────────────────────────────────────────── */
+#toggle-lanes-btn {
+    width: 100%; background: none; border: 1px solid var(--border);
+    color: var(--text2); border-radius: 3px; padding: .24rem .6rem;
+    font-size: .72rem; font-family: var(--f-mono); letter-spacing: .07em;
+    cursor: pointer; transition: all .2s; text-align: left;
+    display: flex; align-items: center; gap: .35rem;
+}
+#toggle-lanes-btn:hover   { border-color: var(--cyan); color: var(--cyan); }
+#toggle-lanes-btn.btn-active { border-color: var(--cyan); color: var(--cyan); background: rgba(0,207,255,.07); }
+
+/* ─── Maritime map markers ─────────────────────────────────────────────────── */
+.mmarker { position: relative; width: 28px; height: 28px; }
+.mm-inner {
+    width: 12px; height: 12px; border-radius: 50%;
+    position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%); z-index: 2;
+}
+.mm-ring {
+    width: 24px; height: 24px; border: 2px solid; border-radius: 50%;
+    position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%);
+    animation: ringPulse 2.8s ease-out infinite; opacity: 0;
+}
+
+/* ─── Legend additions ─────────────────────────────────────────────────────── */
+.leg-divider { height: 1px; background: var(--border); margin: .4rem 0; }
+.leg-line { display: inline-block; width: 22px; height: 3px; border-radius: 2px; flex-shrink: 0; }
+.leg-line-critical { background: #ff1744; }
+.leg-line-disrupted { background: #ff6d00; }
+.leg-line-watch    { background: #ffab00; }
+.leg-line-normal   { background: #00ff88; }
+
+/* ─── Lane tooltip override ────────────────────────────────────────────────── */
+.lane-tooltip {
+    background: rgba(8,8,20,.9) !important;
+    border: 1px solid var(--border) !important;
+    color: var(--text1) !important;
+    border-radius: 4px !important;
+    padding: 3px 8px !important;
+    box-shadow: none !important;
+}
+.lane-tooltip::before { display: none; }
+
+/* ─── Maritime news source label ───────────────────────────────────────────── */
+.news-source-label {
+    flex: 1; font-family: var(--f-mono); font-size: .62rem;
+    color: var(--cyan); letter-spacing: .06em; line-height: 1.3;
+}
+
 /* ─── Responsive ───────────────────────────────────────────────────────────── */
 @media (max-width: 1200px) {
     .panel { width: 275px; min-width: 275px; }
