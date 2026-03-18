@@ -19,16 +19,26 @@ const WAR_KEYWORDS = [
 
 async function fetchRSS(key) {
     const feed = CONFIG.RSS_FEEDS[key];
-    const url  = CONFIG.CORS_PROXY + encodeURIComponent(feed.url);
-    try {
-        const res  = await fetch(url);
-        const data = await res.json();
-        if (!data.contents) return [];
-        return parseRSS(data.contents, key, feed);
-    } catch (e) {
-        console.warn('[news] fetch failed for', key, e.message);
-        return [];
+    for (const proxy of CONFIG.CORS_PROXIES) {
+        const url = proxy.url + encodeURIComponent(feed.url);
+        try {
+            const res = await fetch(url);
+            if (!res.ok) continue;
+            let xml;
+            if (proxy.json) {
+                const data = await res.json();
+                if (!data.contents) continue;
+                xml = data.contents;
+            } else {
+                xml = await res.text();
+            }
+            const items = parseRSS(xml, key, feed);
+            if (items.length > 0) return items;
+        } catch (e) {
+            console.warn('[news] fetch failed for', key, 'via', proxy.url, e.message);
+        }
     }
+    return [];
 }
 
 function parseRSS(xml, key, feed) {
