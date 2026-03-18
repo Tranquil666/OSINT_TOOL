@@ -14,5 +14,11 @@ const CONFIG = {
         bbc:       { name: 'BBC News',   url: 'https://feeds.bbci.co.uk/news/world/rss.xml',    color: '#cc1111' },
         reuters:   { name: 'Reuters',    url: 'https://feeds.reuters.com/reuters/topNews',       color: '#ff7700' },
         aljazeera: { name: 'Al Jazeera', url: 'https://www.aljazeera.com/xml/rss/all.xml',       color: '#009688' }
+    },
+    // Open-source maritime / shipping news RSS feeds
+    MARITIME_FEEDS: {
+        gcaptain:  { name: 'gCaptain',          url: 'https://gcaptain.com/feed/',                               color: '#00cfff' },
+        marex:     { name: 'Maritime Executive', url: 'https://maritime-executive.com/rss.xml',                   color: '#2979ff' },
+        splash247: { name: 'Splash 247',         url: 'https://splash247.com/feed/',                              color: '#00bfa5' }
     }
 };

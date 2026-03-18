@@ -19,8 +19,16 @@ document.addEventListener('DOMContentLoaded', async () => {
     tickClock();
     setInterval(tickClock, 1000);
 
-    await fetchAllNews();
-    setInterval(fetchAllNews, CONFIG.NEWS_REFRESH_MS);
+    // Initialise maritime overlays and tab
+    initMaritime();
+    setupMaritimeMapListeners();
+
+    await Promise.all([
+        fetchAllNews(),
+        fetchMaritimeNews()
+    ]);
+    setInterval(fetchAllNews,      CONFIG.NEWS_REFRESH_MS);
+    setInterval(fetchMaritimeNews, CONFIG.NEWS_REFRESH_MS);
 
     setTimeout(() => {
         const ls = document.getElementById('loading-screen');
@@ -28,6 +36,17 @@ document.addEventListener('DOMContentLoaded', async () => {
         setTimeout(() => ls.remove(), 600);
     }, 2200);
 });
+
+// ─── Right panel news tab switching ──────────────────────────────────────────
+function switchNewsTab(tab) {
+    const isConflict = (tab === 'conflict');
+    document.getElementById('news-tab-conflict').classList.toggle('tab-active', isConflict);
+    document.getElementById('news-tab-maritime').classList.toggle('tab-active', !isConflict);
+    document.getElementById('conflict-news-filters').style.display  = isConflict ? '' : 'none';
+    document.getElementById('maritime-news-filters').style.display  = isConflict ? 'none' : '';
+    document.getElementById('conflict-news-wrap').style.display     = isConflict ? 'flex' : 'none';
+    document.getElementById('maritime-news-wrap').style.display     = isConflict ? 'none' : 'flex';
+}
 
 // ─── Conflict list rendering ─────────────────────────────────────────────────
 function renderConflictList(list) {
@@ -182,6 +201,15 @@ function setupListeners() {
         activeSource = e.target.value; renderNews();
     });
     document.getElementById('refresh-btn').addEventListener('click', fetchAllNews);
+
+    const maritimeRefreshBtn = document.getElementById('maritime-refresh-btn');
+    if (maritimeRefreshBtn) maritimeRefreshBtn.addEventListener('click', fetchMaritimeNews);
+
+    document.getElementById('maritime-level-filter')?.addEventListener('change', applyMaritimeFilter);
+
+    // Right panel tab switching (Intel Feed vs Maritime Feed)
+    document.getElementById('news-tab-conflict')?.addEventListener('click', () => switchNewsTab('conflict'));
+    document.getElementById('news-tab-maritime')?.addEventListener('click', () => switchNewsTab('maritime'));
 
     const exportBtn = document.getElementById('export-btn');
     if (exportBtn) exportBtn.addEventListener('click', exportConflictsCSV);
