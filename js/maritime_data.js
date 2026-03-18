@@ -1,8 +1,9 @@
 // ─── Maritime Disruption Data (open-source / OSINT) ──────────────────────────
 // Sources: ACLED Maritime, IMB Piracy Report, MARAD Advisories, UNOSAT,
 //          Lloyd's List, gCaptain, Splash247, NATO Shipping Centre
+// This fallback is used when the live data/maritime.json cannot be fetched.
 
-const MARITIME_DISRUPTIONS = [
+const _MARITIME_DISRUPTIONS_FALLBACK = [
     {
         id: 'red-sea-houthi',
         name: 'Red Sea — Houthi Attacks',
@@ -135,7 +136,7 @@ const MARITIME_DISRUPTIONS = [
 
 // ─── Major shipping lane waypoints ───────────────────────────────────────────
 // level: 'critical' | 'disrupted' | 'watch' | 'normal'
-const SHIPPING_LANES = [
+const _SHIPPING_LANES_FALLBACK = [
     {
         id: 'suez-route',
         name: 'Asia–Europe via Suez (DISRUPTED)',
@@ -247,7 +248,7 @@ const SHIPPING_LANES = [
 ];
 
 // ─── Disruption zone radius (km) for map circles ─────────────────────────────
-const DISRUPTION_RADII = {
+const _DISRUPTION_RADII_FALLBACK = {
     'red-sea-houthi':      350000,
     'bab-el-mandeb':       120000,
     'strait-hormuz-iran':  100000,
@@ -257,3 +258,29 @@ const DISRUPTION_RADII = {
     'gulf-guinea-piracy':  300000,
     'somalia-indian-ocean':400000
 };
+
+// ─── Live data (populated by loadMaritimeData) ───────────────────────────────
+let MARITIME_DISRUPTIONS = [];
+let SHIPPING_LANES = [];
+let DISRUPTION_RADII = {};
+
+// ─── Fetch maritime data from data/maritime.json (falls back to built-in) ────
+async function loadMaritimeData() {
+    try {
+        const res = await fetch('data/maritime.json?_=' + Date.now());
+        if (!res.ok) throw new Error('HTTP ' + res.status);
+        const json = await res.json();
+        const hasDisruptions = Array.isArray(json.disruptions) && json.disruptions.length > 0;
+        const hasLanes       = Array.isArray(json.shippingLanes) && json.shippingLanes.length > 0;
+        if (!hasDisruptions || !hasLanes) throw new Error('Missing disruptions or shippingLanes in data/maritime.json');
+        MARITIME_DISRUPTIONS = json.disruptions;
+        SHIPPING_LANES       = json.shippingLanes;
+        DISRUPTION_RADII     = json.disruptionRadii || {};
+        return;
+    } catch (err) {
+        console.warn('[WarWatch] Could not load data/maritime.json — using built-in fallback.', err.message);
+        MARITIME_DISRUPTIONS = _MARITIME_DISRUPTIONS_FALLBACK.slice();
+        SHIPPING_LANES       = _SHIPPING_LANES_FALLBACK.slice();
+        DISRUPTION_RADII     = Object.assign({}, _DISRUPTION_RADII_FALLBACK);
+    }
+}

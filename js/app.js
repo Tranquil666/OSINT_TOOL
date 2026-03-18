@@ -9,6 +9,8 @@ function debounce(fn, delay) {
 document.addEventListener('DOMContentLoaded', async () => {
     initMap();
 
+    await Promise.all([loadConflictsData(), loadMaritimeData()]);
+
     const sorted = sortByIntensity(CONFLICTS_DATA);
     renderConflictList(sorted);
     renderMarkers(sorted);
@@ -36,6 +38,31 @@ document.addEventListener('DOMContentLoaded', async () => {
         setTimeout(() => ls.remove(), 600);
     }, 2200);
 });
+
+// ─── Refresh conflict & maritime data from JSON files ────────────────────────
+async function refreshConflictData() {
+    const btn = document.getElementById('data-refresh-btn');
+    if (btn) { btn.disabled = true; btn.querySelector('i').classList.add('fa-spin'); }
+
+    await Promise.all([loadConflictsData(), loadMaritimeData()]);
+
+    filters = { region: 'all', intensity: 'all', search: '' };
+    const regionEl    = document.getElementById('region-filter');
+    const intensityEl = document.getElementById('intensity-filter');
+    const searchEl    = document.getElementById('search-input');
+    if (regionEl)    regionEl.value    = 'all';
+    if (intensityEl) intensityEl.value = 'all';
+    if (searchEl)    searchEl.value    = '';
+
+    const sorted = sortByIntensity(CONFLICTS_DATA);
+    renderConflictList(sorted);
+    renderMarkers(sorted);
+    updateStats();
+
+    initMaritime();
+
+    if (btn) { btn.disabled = false; btn.querySelector('i').classList.remove('fa-spin'); }
+}
 
 // ─── Right panel news tab switching ──────────────────────────────────────────
 function switchNewsTab(tab) {
@@ -213,6 +240,9 @@ function setupListeners() {
 
     const exportBtn = document.getElementById('export-btn');
     if (exportBtn) exportBtn.addEventListener('click', exportConflictsCSV);
+
+    const dataRefreshBtn = document.getElementById('data-refresh-btn');
+    if (dataRefreshBtn) dataRefreshBtn.addEventListener('click', refreshConflictData);
 
     setupNewsListeners();
 }

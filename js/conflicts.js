@@ -1,5 +1,6 @@
 // Curated open-source conflict dataset (ACLED, Wikipedia, UCDP)
-const CONFLICTS_DATA = [
+// This fallback is used when the live data/conflicts.json cannot be fetched.
+const _CONFLICTS_FALLBACK = [
     {
         id: 'ukraine-russia',
         name: 'Russia–Ukraine War',
@@ -449,6 +450,43 @@ const CONFLICTS_DATA = [
         tags: ['tension', 'asia', 'nuclear-risk', 'icbm', 'dprk']
     }
 ];
+
+// ─── Live data (populated by loadConflictsData) ─────────────────────────────
+let CONFLICTS_DATA = [];
+
+// ─── Fetch conflict data from data/conflicts.json (falls back to _CONFLICTS_FALLBACK) ─
+async function loadConflictsData() {
+    try {
+        const res = await fetch('data/conflicts.json?_=' + Date.now());
+        if (!res.ok) throw new Error('HTTP ' + res.status);
+        const json = await res.json();
+        if (Array.isArray(json.conflicts) && json.conflicts.length > 0) {
+            CONFLICTS_DATA = json.conflicts;
+            _setDataLastUpdated(json.lastUpdated || null);
+            return;
+        }
+        throw new Error('Empty or invalid conflicts array in data/conflicts.json');
+    } catch (err) {
+        console.warn('[WarWatch] Could not load data/conflicts.json — using built-in fallback.', err.message);
+        CONFLICTS_DATA = _CONFLICTS_FALLBACK.slice();
+        _setDataLastUpdated(null);
+    }
+}
+
+function _setDataLastUpdated(isoDate) {
+    const el = document.getElementById('data-last-updated');
+    if (!el) return;
+    if (isoDate) {
+        try {
+            const d = new Date(isoDate);
+            el.textContent = d.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
+            el.title = d.toUTCString();
+            return;
+        } catch (_) {}
+    }
+    el.textContent = 'built-in';
+    el.title = 'Using built-in fallback data';
+}
 
 // ─── Helper functions ───────────────────────────────────────────────────────
 
