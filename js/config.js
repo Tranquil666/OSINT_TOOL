@@ -15,6 +15,14 @@ const CONFIG = {
         reuters:   { name: 'Reuters',    url: 'https://feeds.reuters.com/reuters/topNews',       color: '#ff7700' },
         aljazeera: { name: 'Al Jazeera', url: 'https://www.aljazeera.com/xml/rss/all.xml',       color: '#009688' }
     },
+    // Iran-specific and missile alert feeds
+    IRAN_FEEDS: {
+        bbc_mideast:    { name: 'BBC Middle East',     url: 'https://feeds.bbci.co.uk/news/world/middle_east/rss.xml',  color: '#cc1111' },
+        reuters_mideast:{ name: 'Reuters Middle East', url: 'https://feeds.reuters.com/reuters/middleeastNews',         color: '#ff7700' },
+        toi_alerts:     { name: 'ToI Alerts',          url: 'https://www.timesofisrael.com/alerts/feed/',              color: '#e74c3c' },
+        jpost_alerts:   { name: 'JPost Alerts',        url: 'https://www.jpost.com/Rss/RssFeedsAlerts.aspx',           color: '#c0392b' },
+        iaea_news:      { name: 'IAEA Press',          url: 'https://www.iaea.org/newscenter/pressreleases/rss',       color: '#3498db' }
+    },
     // Open-source maritime / shipping news RSS feeds
     MARITIME_FEEDS: {
         gcaptain:  { name: 'gCaptain',          url: 'https://gcaptain.com/feed/',                               color: '#00cfff' },

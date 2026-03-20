@@ -11,6 +11,12 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     await Promise.all([loadConflictsData(), loadMaritimeData()]);
 
+    // Initialize Iran real-time module
+    if (typeof initIranRealTime === 'function') {
+        await initIranRealTime();
+        await updateIranConflictWithRealTimeData();
+    }
+
     const sorted = sortByIntensity(CONFLICTS_DATA);
     renderConflictList(sorted);
     renderMarkers(sorted);
@@ -32,6 +38,16 @@ document.addEventListener('DOMContentLoaded', async () => {
     setInterval(fetchAllNews,      CONFIG.NEWS_REFRESH_MS);
     setInterval(fetchMaritimeNews, CONFIG.NEWS_REFRESH_MS);
 
+    // Refresh Iran real-time data periodically (every 15 minutes)
+    if (typeof updateIranRealTimeData === 'function') {
+        setInterval(async () => {
+            await updateIranRealTimeData();
+            await updateIranConflictWithRealTimeData();
+            // Re-render if Iran conflict is currently visible
+            applyFilters();
+        }, 15 * 60 * 1000);
+    }
+
     setTimeout(() => {
         const ls = document.getElementById('loading-screen');
         ls.style.opacity = '0';
@@ -45,6 +61,12 @@ async function refreshConflictData() {
     if (btn) { btn.disabled = true; btn.querySelector('i').classList.add('fa-spin'); }
 
     await Promise.all([loadConflictsData(), loadMaritimeData()]);
+
+    // Update Iran real-time data
+    if (typeof updateIranRealTimeData === 'function') {
+        await updateIranRealTimeData();
+        await updateIranConflictWithRealTimeData();
+    }
 
     filters = { region: 'all', intensity: 'all', search: '' };
     const regionEl    = document.getElementById('region-filter');
@@ -115,16 +137,60 @@ function openDetail(id) {
     if (!c) return;
     const col = { critical:'#ff1744', high:'#ff6d00', medium:'#ffab00', low:'#ffd600', tension:'#2979ff' }[c.intensity] || '#888';
 
-    document.getElementById('detail-body').innerHTML = `
+    let detailHTML = `
         <div class="det-title">${c.name}</div>
         <div class="det-sub">
             <span class="det-badge" style="background:${col}22;border-color:${col};color:${col}">${c.intensity.toUpperCase()}</span>
             <span>${c.type}</span>
         </div>
         <p class="det-desc">${c.description}</p>
+    `;
+
+    // Add real-time alerts section for Iran conflict
+    if (id === 'iran-regional' && typeof getIranDataSummary === 'function') {
+        const iranData = getIranDataSummary();
+        if (iranData.recentAlerts && iranData.recentAlerts.length > 0) {
+            detailHTML += `
+                <div class="det-section-title" style="margin-top:1rem">🚨 RECENT MISSILE ALERTS (Last 5)</div>
+                <div style="max-height:150px;overflow-y:auto;margin-bottom:1rem;font-size:0.85em">
+                    ${iranData.recentAlerts.map(alert => `
+                        <div style="padding:0.5rem;border-left:3px solid #e74c3c;margin-bottom:0.5rem;background:rgba(231,76,60,0.1)">
+                            <div style="font-weight:500;color:#e74c3c">${alert.title}</div>
+                            <div style="font-size:0.8em;color:#999;margin-top:0.2rem">
+                                ${alert.pubDate.toLocaleString()} • ${alert.type}
+                            </div>
+                        </div>
+                    `).join('')}
+                </div>
+            `;
+        }
+
+        if (iranData.nuclearStatus) {
+            detailHTML += `
+                <div class="det-section-title">☢️ NUCLEAR STATUS</div>
+                <div style="padding:0.5rem;border-left:3px solid #3498db;margin-bottom:1rem;background:rgba(52,152,219,0.1)">
+                    <div style="font-weight:500">${iranData.nuclearStatus.title}</div>
+                    ${iranData.nuclearStatus.enrichmentLevel ? `<div style="color:#3498db;margin-top:0.3rem">Enrichment: ${iranData.nuclearStatus.enrichmentLevel}</div>` : ''}
+                    <div style="font-size:0.8em;color:#999;margin-top:0.2rem">
+                        ${iranData.nuclearStatus.pubDate.toLocaleString()}
+                    </div>
+                </div>
+            `;
+        }
+
+        if (iranData.lastUpdated) {
+            detailHTML += `
+                <div style="font-size:0.75em;color:#27ae60;margin-bottom:0.5rem">
+                    ✓ Real-time data updated: ${iranData.lastUpdated.toLocaleTimeString()}
+                </div>
+            `;
+        }
+    }
+
+    detailHTML += `
         <div class="det-grid">
             <div class="det-cell"><div class="dcl">LOCATION</div><div class="dcv">📍 ${c.country}</div></div>
-            <div class="det-cell"><div class="dcl">STATUS</div><div class="dcv" style="color:${c.status==='Active'?col:'var(--cyan)'}">● ${c.status}</div></div>
+            <div class="det-cell"><div class="dcl">STATUS</div><div class="dcv" style="color:${c.status.includes('Real-time')?'#27ae60':c.status==='Active'?col:'var(--cyan)'}">● ${c.status}</div></div>
             <div class="det-cell"><div class="dcl">CASUALTIES</div><div class="dcv">💀 ${c.casualties}</div></div>
             <div class="det-cell"><div class="dcl">DISPLACED</div><div class="dcv">🏕️ ${c.displaced}</div></div>
             <div class="det-cell"><div class="dcl">STARTED</div><div class="dcv">📅 ${formatDate(c.started)}</div></div>
@@ -133,9 +199,10 @@ function openDetail(id) {
         <div class="det-section-title">PARTIES INVOLVED</div>
         <div class="det-parties">${c.parties.map(p=>`<span class="party">${p}</span>`).join('')}</div>
         <div class="cc-tags" style="margin-bottom:.75rem">${c.tags.map(t=>`<span class="tag">#${t}</span>`).join('')}</div>
-        <div class="det-sources"><i class="fas fa-database"></i> Sources: ACLED · Wikipedia · UCDP · Open Sources</div>
+        <div class="det-sources"><i class="fas fa-database"></i> Sources: ${id === 'iran-regional' ? 'ACLED · IAEA · ToI Alerts · Reuters · BBC · Open Sources' : 'ACLED · Wikipedia · UCDP · Open Sources'}</div>
     `;
 
+    document.getElementById('detail-body').innerHTML = detailHTML;
     document.getElementById('detail-panel').classList.add('visible');
 }
 
