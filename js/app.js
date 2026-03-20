@@ -229,6 +229,24 @@ function setupListeners() {
     });
     document.getElementById('refresh-btn').addEventListener('click', fetchAllNews);
 
+    // News search functionality
+    const newsSearchInput = document.getElementById('news-search-input');
+    const newsSearchClear = document.getElementById('news-search-clear');
+    if (newsSearchInput && newsSearchClear) {
+        newsSearchInput.addEventListener('input', debounce(e => {
+            const query = e.target.value.trim();
+            searchNews(query);
+            newsSearchClear.style.display = query ? 'block' : 'none';
+        }, 300));
+
+        newsSearchClear.addEventListener('click', () => {
+            newsSearchInput.value = '';
+            searchNews('');
+            newsSearchClear.style.display = 'none';
+            newsSearchInput.focus();
+        });
+    }
+
     const maritimeRefreshBtn = document.getElementById('maritime-refresh-btn');
     if (maritimeRefreshBtn) maritimeRefreshBtn.addEventListener('click', fetchMaritimeNews);
 
@@ -239,7 +257,10 @@ function setupListeners() {
     document.getElementById('news-tab-maritime')?.addEventListener('click', () => switchNewsTab('maritime'));
 
     const exportBtn = document.getElementById('export-btn');
-    if (exportBtn) exportBtn.addEventListener('click', exportConflictsCSV);
+    if (exportBtn) exportBtn.addEventListener('click', () => showExportModal('conflicts'));
+
+    const maritimeExportBtn = document.getElementById('maritime-export-btn');
+    if (maritimeExportBtn) maritimeExportBtn.addEventListener('click', () => showExportModal('maritime'));
 
     const dataRefreshBtn = document.getElementById('data-refresh-btn');
     if (dataRefreshBtn) dataRefreshBtn.addEventListener('click', refreshConflictData);
