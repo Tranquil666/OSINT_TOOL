@@ -488,6 +488,33 @@ function _setDataLastUpdated(isoDate) {
     el.title = 'Using built-in fallback data';
 }
 
+// ─── Update Iran conflict with real-time data ────────────────────────────────
+async function updateIranConflictWithRealTimeData() {
+    // Check if iran_realtime.js is loaded
+    if (typeof getEnrichedIranDescription !== 'function') {
+        console.warn('[conflicts] Iran real-time module not loaded');
+        return;
+    }
+
+    // Find the Iran conflict in the data
+    const iranIndex = CONFLICTS_DATA.findIndex(c => c.id === 'iran-regional');
+    if (iranIndex === -1) {
+        console.warn('[conflicts] Iran-regional conflict not found in data');
+        return;
+    }
+
+    // Get enriched description from real-time data
+    const enrichedDesc = getEnrichedIranDescription();
+
+    // Update the description with real-time information
+    CONFLICTS_DATA[iranIndex].description = enrichedDesc;
+
+    // Add real-time indicator to the status
+    CONFLICTS_DATA[iranIndex].status = 'Active (Real-time)';
+
+    console.log('[conflicts] Updated Iran conflict with real-time data');
+}
+
 // ─── Helper functions ───────────────────────────────────────────────────────
 
 function filterConflicts(region, intensity, query) {
