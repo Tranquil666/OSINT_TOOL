@@ -1,6 +1,7 @@
 // ─── News module ─────────────────────────────────────────────────────────────
 let cachedNews = [];
 let activeSource = 'all';
+let newsSearchQuery = '';
 
 const NEWS_CACHE_KEY = 'warwatch_news_cache';
 const NEWS_CACHE_TTL = 10 * 60 * 1000; // 10 minutes
@@ -120,25 +121,47 @@ function setNewsLoading(loading) {
 
 function renderNews() {
     const list   = document.getElementById('news-list');
-    const items  = activeSource === 'all' ? cachedNews : cachedNews.filter(n => n.source === activeSource);
+    let items  = activeSource === 'all' ? cachedNews : cachedNews.filter(n => n.source === activeSource);
+
+    // Apply search filter if search query exists
+    if (newsSearchQuery && newsSearchQuery.trim()) {
+        const query = newsSearchQuery.toLowerCase().trim();
+        items = items.filter(n =>
+            n.title.toLowerCase().includes(query) ||
+            (n.desc && n.desc.toLowerCase().includes(query))
+        );
+    }
 
     if (!items.length) {
-        list.innerHTML = `<div class="no-data"><i class="fas fa-satellite-dish"></i><p>No reports available.</p></div>`;
+        const message = newsSearchQuery ? 'No articles match your search.' : 'No reports available.';
+        list.innerHTML = `<div class="no-data"><i class="fas fa-satellite-dish"></i><p>${message}</p></div>`;
         return;
     }
 
-    list.innerHTML = items.map(n => `
-        <div class="news-card" role="listitem" data-href="${safeAttr(n.link)}">
-            <span class="ns-tag" style="color:${n.sourceColor}">${esc(n.sourceName)}</span>
-            <div class="news-title">${esc(n.title)}</div>
-            ${n.desc ? `<div class="news-desc">${esc(n.desc.substring(0,130))}…</div>` : ''}
-            <div class="news-meta">
-                <span>${relTime(n.ts)}</span>
-                <a href="${safeAttr(n.link)}" target="_blank" rel="noopener noreferrer"
-                   onclick="event.stopPropagation()">Read →</a>
+    list.innerHTML = items.map(n => {
+        // Highlight search terms in title and description
+        let highlightedTitle = esc(n.title);
+        let highlightedDesc = n.desc ? esc(n.desc.substring(0,130)) : '';
+
+        if (newsSearchQuery && newsSearchQuery.trim()) {
+            const regex = new RegExp(`(${escapeRegex(newsSearchQuery)})`, 'gi');
+            highlightedTitle = highlightedTitle.replace(regex, '<mark>$1</mark>');
+            highlightedDesc = highlightedDesc.replace(regex, '<mark>$1</mark>');
+        }
+
+        return `
+            <div class="news-card" role="listitem" data-href="${safeAttr(n.link)}">
+                <span class="ns-tag" style="color:${n.sourceColor}">${esc(n.sourceName)}</span>
+                <div class="news-title">${highlightedTitle}</div>
+                ${highlightedDesc ? `<div class="news-desc">${highlightedDesc}…</div>` : ''}
+                <div class="news-meta">
+                    <span>${relTime(n.ts)}</span>
+                    <a href="${safeAttr(n.link)}" target="_blank" rel="noopener noreferrer"
+                       onclick="event.stopPropagation()">Read →</a>
+                </div>
             </div>
-        </div>
-    `).join('');
+        `;
+    }).join('');
 }
 
 function refreshTicker() {
@@ -213,6 +236,16 @@ function loadNewsCache() {
         if (Date.now() - ts > NEWS_CACHE_TTL) return null;
         return Array.isArray(items) ? items : null;
     } catch (_) { return null; }
+}
+
+// ─── News Search ─────────────────────────────────────────────────────────────
+function searchNews(query) {
+    newsSearchQuery = query;
+    renderNews();
+}
+
+function escapeRegex(str) {
+    return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 }
 
 // ─── Event delegation for news card clicks ────────────────────────────────────
